@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <SDL2/SDL.h>
+#include <cp_sdl.h>
 
 #include <cp_common.h>
 

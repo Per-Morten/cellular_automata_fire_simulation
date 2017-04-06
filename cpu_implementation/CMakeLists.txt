@@ -11,5 +11,5 @@ add_executable(cpu_implementation
 target_link_libraries(cpu_implementation
        	OpenCL
         cp_common
-        SDL2
+        cp_sdl
 )
