@@ -1,7 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 
 add_library(cp_common
-    cp_common.c
     cp_log.c
     cp_clock.cpp
 )
