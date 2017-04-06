@@ -13,6 +13,34 @@ typedef struct
 } cp_sdl_api;
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief Structure for representing color.
+///////////////////////////////////////////////////////////////////////////////
+typedef struct
+{
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
+} cp_sdl_color;
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief Structure for representing a graphical cell.
+///
+/// \note border_width goes towards center.
+///////////////////////////////////////////////////////////////////////////////
+typedef struct
+{
+    int x;
+    int y;
+    int w;
+    int h;
+
+    int border_width;
+    cp_sdl_color color;
+    cp_sdl_color border_color;
+} cp_sdl_cell;
+
+///////////////////////////////////////////////////////////////////////////////
 /// \brief  Initializes the out_api, creating a window
 ///         and renderer that is stored in the cp_sdl_api.
 ///
@@ -49,7 +77,17 @@ cp_sdl_clear(cp_sdl_api* api);
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Calls present on the renderer within the api.
 ///
-/// \param api the cp_sdl_api containing the renderer to present.
+/// \param  api the cp_sdl_api containing the renderer to present.
 ///////////////////////////////////////////////////////////////////////////////
 void
 cp_sdl_present(cp_sdl_api* api);
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Renders the cell pointed to by cell.
+///
+/// \param  api the cp_sdl_api containing the renderer to render in.
+/// \param  cell the cell to render.
+///////////////////////////////////////////////////////////////////////////////
+void
+cp_sdl_render_cell(cp_sdl_api* api,
+                   const cp_sdl_cell* cell);

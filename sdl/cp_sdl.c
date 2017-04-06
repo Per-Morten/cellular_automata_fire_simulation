@@ -65,3 +65,52 @@ cp_sdl_present(cp_sdl_api* api)
 {
     SDL_RenderPresent(api->renderer);
 }
+
+void
+cp_sdl_render_cell(cp_sdl_api* api,
+                   const cp_sdl_cell* cell)
+{
+    cp_sdl_color prev_color;
+    SDL_GetRenderDrawColor(api->renderer,
+                           &prev_color.r,
+                           &prev_color.g,
+                           &prev_color.b,
+                           &prev_color.a);
+
+    SDL_SetRenderDrawColor(api->renderer,
+                           cell->border_color.r,
+                           cell->border_color.g,
+                           cell->border_color.b,
+                           cell->border_color.a);
+
+    // Draw "border rect" first.
+    SDL_Rect rect =
+    {
+        .x = cell->x,
+        .y = cell->y,
+        .w = cell->w,
+        .h = cell->h,
+    };
+
+    SDL_RenderFillRect(api->renderer, &rect);
+
+    // Now to draw the actual rect.
+    rect.x = cell->x + cell->border_width;
+    rect.y = cell->y + cell->border_width;
+    rect.w = cell->w - (cell->border_width * 2);
+    rect.h = cell->h - (cell->border_width * 2);
+
+    SDL_SetRenderDrawColor(api->renderer,
+                           cell->color.r,
+                           cell->color.g,
+                           cell->color.b,
+                           cell->color.a);
+
+    SDL_RenderFillRect(api->renderer, &rect);
+
+    SDL_SetRenderDrawColor(api->renderer,
+                           prev_color.r,
+                           prev_color.g,
+                           prev_color.b,
+                           prev_color.a);
+}
