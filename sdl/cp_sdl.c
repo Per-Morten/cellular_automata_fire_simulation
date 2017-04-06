@@ -54,3 +54,14 @@ cp_sdl_shutdown(cp_sdl_api* api)
     SDL_Quit();
 }
 
+void
+cp_sdl_clear(cp_sdl_api* api)
+{
+    SDL_RenderClear(api->renderer);
+}
+
+void
+cp_sdl_present(cp_sdl_api* api)
+{
+    SDL_RenderPresent(api->renderer);
+}
