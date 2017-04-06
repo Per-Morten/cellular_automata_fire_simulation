@@ -9,3 +9,15 @@ target_link_libraries(cp_sdl
     cp_common
     m # For math
 )
+
+# For testing
+add_executable(cp_sdl_test
+    main.c
+)
+
+target_link_libraries(cp_sdl_test
+    SDL2
+    cp_common
+    cp_sdl
+    m # For math
+)
