@@ -1,5 +1,6 @@
 #pragma once
 #include <stdio.h>
+#include <stdbool.h>
 #include <SDL2/SDL.h>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -91,3 +92,13 @@ cp_sdl_present(cp_sdl_api* api);
 void
 cp_sdl_render_cell(cp_sdl_api* api,
                    const cp_sdl_cell* cell);
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Checks if the program should continue to run, by polling events
+///         from sdl.
+///
+/// \return true if the program should continue running, false if the user
+///         has requested the program to end.
+///////////////////////////////////////////////////////////////////////////////
+bool
+cp_sdl_handle_events();

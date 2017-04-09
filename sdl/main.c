@@ -40,7 +40,7 @@ main(CP_UNUSED int argc,
 
     if (result == CP_SUCCESS)
     {
-        for (size_t i = 0; i < 10000; ++i)
+        while (cp_sdl_handle_events())
         {
             cp_sdl_clear(&sdl_api);
             cp_sdl_render_cell(&sdl_api, &cell);

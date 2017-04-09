@@ -114,3 +114,19 @@ cp_sdl_render_cell(cp_sdl_api* api,
                            prev_color.b,
                            prev_color.a);
 }
+
+bool
+cp_sdl_handle_events()
+{
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_QUIT ||
+            (event.type == SDL_KEYUP &&
+             event.key.keysym.sym == SDLK_ESCAPE))
+        {
+            return false;
+        }
+    }
+    return true;
+}
