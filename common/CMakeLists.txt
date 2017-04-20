@@ -6,6 +6,6 @@ add_library(cp_common
 )
 
 target_link_libraries(cp_common
-    OpenCL
-    m # For math
+    "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v8.0\\lib\\Win32\\OpenCL.lib"
+    # m # For math
 )

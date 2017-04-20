@@ -40,9 +40,11 @@ cp_log(FILE* file,
     va_start(args1, fmt);
     va_list args2;
     va_copy(args2, args1);
-    char buffer[1+vsnprintf(NULL, 0, fmt, args1)];
+    size_t size = 1 + vsnprintf(NULL, 0, fmt, args1);
+    char buffer = malloc(size);
+    
     va_end(args1);
-    vsnprintf(buffer, sizeof(buffer), fmt, args2);
+    vsnprintf(buffer, size, fmt, args2);
     va_end(args2);
 
     float time_diff = cp_clock_difference(g_log_clock_current,

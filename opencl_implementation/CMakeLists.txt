@@ -9,7 +9,7 @@ add_executable(opencl_implementation
 )
 
 target_link_libraries(opencl_implementation
-       	OpenCL
+       	"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v8.0\\lib\\win32\\OpenCL.lib"
         cp_common
         cp_sdl
 )
