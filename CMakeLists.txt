@@ -5,7 +5,8 @@ include_directories("${PROJECT_BINARY_DIR}"
                     "/opt/intel/opencl-1.2-sdk-6.3.0.1904/include/"
                     "${CMAKE_SOURCE_DIR}/common"
                     "${CMAKE_SOURCE_DIR}/cpu_implementation"
-                    "${CMAKE_SOURCE_DIR}/opencl_implementation")
+                    "${CMAKE_SOURCE_DIR}/opencl_implementation"
+                    "${CMAKE_SOURCE_DIR}/sdl")
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -18,6 +19,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_CXX_FLAGS} -O3")
 
 subdirs(
     common
+    sdl
     cpu_implementation
     opencl_implementation
 )
