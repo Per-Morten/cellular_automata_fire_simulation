@@ -5,10 +5,8 @@ add_library(cp_sdl
 )
 
 target_link_libraries(cp_sdl
-    $ENV{SDL_HOME}\\lib\\SDL2.lib
-    "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v8.0\\lib\\Win32\\OpenCL.lib"
+    ${CP_STANDARD_LINKS}
     cp_common
-    # m # For math
 )
 
 # For testing
