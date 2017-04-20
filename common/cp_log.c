@@ -41,8 +41,8 @@ cp_log(FILE* file,
     va_list args2;
     va_copy(args2, args1);
     size_t size = 1 + vsnprintf(NULL, 0, fmt, args1);
-    char buffer = malloc(size);
-    
+    char* buffer = malloc(size);
+
     va_end(args1);
     vsnprintf(buffer, size, fmt, args2);
     va_end(args2);
@@ -60,4 +60,6 @@ cp_log(FILE* file,
             line, buffer);
 
     fflush(file);
+
+    free(buffer);
 }
