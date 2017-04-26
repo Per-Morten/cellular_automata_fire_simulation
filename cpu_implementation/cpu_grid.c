@@ -88,14 +88,7 @@ update_cell_temprature(cpu_cell** read_cells,
                 write_cells[i][j].temprature += fuel_consumption_heat_increase;
                 write_cells[i][j].fuel = read_cells[i][j].fuel - 1;
             }
-
-            
-
         }
-    }
-    if (read_cells[0][0].fuel > 0)
-    {
-        CP_DEBUG("%d", read_cells[0][0].fuel);
     }
 }
 
