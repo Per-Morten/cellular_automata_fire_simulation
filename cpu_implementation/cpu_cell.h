@@ -5,5 +5,5 @@ typedef struct
 {
     cp_sdl_cell graphics;
     int32_t fuel;
-    float temprature;
+    float temperature;
 } cpu_cell;

@@ -34,9 +34,9 @@ update_cell_color(cpu_cell** cells,
     {
         for (size_t j = 0; j < columns; ++j)
         {
-            cells[i][j].graphics.color.r = (cells[i][j].temprature > UCHAR_MAX)
+            cells[i][j].graphics.color.r = (cells[i][j].temperature > UCHAR_MAX)
                                          ? UCHAR_MAX
-                                         : (uint8_t)cells[i][j].temprature;
+                                         : (uint8_t)cells[i][j].temperature;
 
             cells[i][j].graphics.color.b = (uint8_t)(cells[i][j].fuel * UCHAR_MAX / max_fuel);
         }
@@ -44,44 +44,44 @@ update_cell_color(cpu_cell** cells,
 }
 
 void
-update_cell_temprature(cpu_cell** read_cells,
-                       cpu_cell** write_cells,
-                       const size_t rows,
-                       const size_t colums)
+update_cell_temperature(cpu_cell** read_cells,
+                        cpu_cell** write_cells,
+                        const size_t rows,
+                        const size_t colums)
 {
     for (size_t i = 0; i < rows; ++i)
     {
         for (size_t j = 0; j < colums; ++j)
         {
             //give heat to nearby cells
-            float initialTemprature = read_cells[i][j].temprature;
+            float initial_temperature = read_cells[i][j].temperature;
 
-            write_cells[i][j].temprature = initialTemprature -
-                (initialTemprature*temprature_spread_up +
-                 initialTemprature*temprature_spread_down +
-                 initialTemprature*temprature_spread_diagonal_down * 2 +
-                 initialTemprature*temprature_spread_diagonal_up * 2 +
-                 initialTemprature*temprature_spread_horizontal * 2);
+            write_cells[i][j].temperature = initial_temperature -
+                (initial_temperature*temperature_spread_up +
+                 initial_temperature*temperature_spread_down +
+                 initial_temperature*temperature_spread_diagonal_down * 2 +
+                 initial_temperature*temperature_spread_diagonal_up * 2 +
+                 initial_temperature*temperature_spread_horizontal * 2);
 
-            //Add temprature from nearby cells
+            //Add temperature from nearby cells
             //add from below
-            write_cells[i][j].temprature += read_cells[i][j + 1].temprature*temprature_spread_up;
+            write_cells[i][j].temperature += read_cells[i][j + 1].temperature*temperature_spread_up;
             //add from above
-            write_cells[i][j].temprature += read_cells[i][j - 1].temprature*temprature_spread_down;
+            write_cells[i][j].temperature += read_cells[i][j - 1].temperature*temperature_spread_down;
             //add from diagonal below
-            write_cells[i][j].temprature += read_cells[i + 1][j + 1].temprature*temprature_spread_diagonal_up;
-            write_cells[i][j].temprature += read_cells[i - 1][j + 1].temprature*temprature_spread_diagonal_up;
+            write_cells[i][j].temperature += read_cells[i + 1][j + 1].temperature*temperature_spread_diagonal_up;
+            write_cells[i][j].temperature += read_cells[i - 1][j + 1].temperature*temperature_spread_diagonal_up;
             //add from horizontal
-            write_cells[i][j].temprature += read_cells[i + 1][j].temprature*temprature_spread_horizontal;
-            write_cells[i][j].temprature += read_cells[i - 1][j].temprature*temprature_spread_horizontal;
+            write_cells[i][j].temperature += read_cells[i + 1][j].temperature*temperature_spread_horizontal;
+            write_cells[i][j].temperature += read_cells[i - 1][j].temperature*temperature_spread_horizontal;
             //add from diagonal above
-            write_cells[i][j].temprature += read_cells[i + 1][j - 1].temprature*temprature_spread_diagonal_down;
-            write_cells[i][j].temprature += read_cells[i - 1][j - 1].temprature*temprature_spread_diagonal_down;
+            write_cells[i][j].temperature += read_cells[i + 1][j - 1].temperature*temperature_spread_diagonal_down;
+            write_cells[i][j].temperature += read_cells[i - 1][j - 1].temperature*temperature_spread_diagonal_down;
 
-            if (read_cells[i][j].temprature > burning_threshold
+            if (read_cells[i][j].temperature > burning_threshold
                 && read_cells[i][j].fuel > 0)
             {
-                write_cells[i][j].temprature += fuel_consumption_heat_increase;
+                write_cells[i][j].temperature += fuel_consumption_heat_increase;
                 write_cells[i][j].fuel = read_cells[i][j].fuel - 1;
             }
         }
@@ -138,7 +138,7 @@ create_grid(const size_t rows,
             cells[i][j].graphics.color.a = 0x00;
 
             cells[i][j].fuel = rand() % max_fuel;
-            cells[i][j].temprature = (float)(rand() % (int)max_initial_temprature);
+            cells[i][j].temperature = (float)(rand() % (int)max_initial_temperature);
         }
     }
 

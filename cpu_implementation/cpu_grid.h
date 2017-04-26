@@ -14,10 +14,10 @@ update_cell_color(cpu_cell** cells,
                   const size_t columns);
 
 void
-update_cell_temprature(cpu_cell** read_cells,
-                       cpu_cell** write_cells,
-                       const size_t rows,
-                       const size_t colums);
+update_cell_temperature(cpu_cell** read_cells,
+                        cpu_cell** write_cells,
+                        const size_t rows,
+                        const size_t colums);
 
 cpu_cell**
 create_grid(const size_t rows,

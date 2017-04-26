@@ -53,10 +53,10 @@ run_simulation(void* simulation)
         sem_wait(sim_data->start_sync);
         should_continue = *sim_data->should_continue;
 
-        update_cell_temprature(sim_data->double_buffer->read,
-                               sim_data->double_buffer->write,
-                               sim_data->double_buffer->count,
-                               sim_data->double_buffer->count);
+        update_cell_temperature(sim_data->double_buffer->read,
+                                sim_data->double_buffer->write,
+                                sim_data->double_buffer->count,
+                                sim_data->double_buffer->count);
 
         sem_post(sim_data->finish_sync);
     }
