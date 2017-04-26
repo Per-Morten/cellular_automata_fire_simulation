@@ -19,3 +19,8 @@ typedef struct
                          // Both of these also protect the double buffer and should continue
 } cpu_simulation;
 
+cpu_simulation
+create_simulation(const size_t cell_count);
+
+void
+destroy_simulation(cpu_simulation* simulation);

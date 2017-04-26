@@ -5,9 +5,11 @@ set (cpu_implementation_VERSION_MAJOR 1)
 set (cpu_implementation_VERSION_MINOR 0)
 
 add_executable(cpu_implementation
+    cpu_grid.c
+    cpu_grid.h
+    cpu_simulation.c
     cpu_simulation.h
     main.c
-    cpu_grid.c
 )
 
 target_link_libraries(cpu_implementation
