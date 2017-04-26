@@ -24,3 +24,6 @@ create_simulation(const size_t cell_count);
 
 void
 destroy_simulation(cpu_simulation* simulation);
+
+void*
+run_simulation(void* simulation);

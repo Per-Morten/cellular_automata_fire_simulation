@@ -42,3 +42,23 @@ destroy_simulation(cpu_simulation* sim)
     free(sim->finish_sync);
     free(sim->should_continue);
 }
+
+void*
+run_simulation(void* simulation)
+{
+    cpu_simulation* sim_data = (cpu_simulation*)simulation;
+    bool should_continue = true;
+    while (should_continue)
+    {
+        sem_wait(sim_data->start_sync);
+        should_continue = *sim_data->should_continue;
+
+        update_cell_temprature(sim_data->double_buffer->read,
+                               sim_data->double_buffer->write,
+                               sim_data->double_buffer->count,
+                               sim_data->double_buffer->count);
+
+        sem_post(sim_data->finish_sync);
+    }
+    return NULL;
+}
