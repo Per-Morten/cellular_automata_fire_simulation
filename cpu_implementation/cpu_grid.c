@@ -34,14 +34,10 @@ update_cell_color(cpu_cell** cells,
     {
         for (size_t j = 0; j < columns; ++j)
         {
-            if (cells[i][j].temprature > UCHAR_MAX)
-            {
-                cells[i][j].graphics.color.r = UCHAR_MAX;
-            }
-            else
-            {
-                cells[i][j].graphics.color.r = (uint8_t)cells[i][j].temprature;
-            }
+            cells[i][j].graphics.color.r = (cells[i][j].temprature > UCHAR_MAX)
+                                         ? UCHAR_MAX
+                                         : (uint8_t)cells[i][j].temprature;
+
             cells[i][j].graphics.color.b = (uint8_t)(cells[i][j].fuel * UCHAR_MAX / max_fuel);
         }
     }
@@ -57,9 +53,9 @@ update_cell_temprature(cpu_cell** read_cells,
     {
         for (size_t j = 0; j < colums; ++j)
         {
-
             //give heat to nearby cells
             float initialTemprature = read_cells[i][j].temprature;
+
             write_cells[i][j].temprature = initialTemprature -
                 (initialTemprature*temprature_spread_up +
                  initialTemprature*temprature_spread_down +
