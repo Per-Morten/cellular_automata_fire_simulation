@@ -1,5 +1,6 @@
 #pragma once
 #include <cp_sdl.h>
+#include <cp_common.h>
 #include <cpu_cell.h>
 
 void
@@ -14,8 +15,8 @@ update_cell_color(cpu_cell** cells,
                   const size_t columns);
 
 void
-update_cell_temperature(cpu_cell** read_cells,
-                        cpu_cell** write_cells,
+update_cell_temperature(cpu_cell** CP_RESTRICT read_cells,
+                        cpu_cell** CP_RESTRICT write_cells,
                         const size_t rows,
                         const size_t colums);
 
