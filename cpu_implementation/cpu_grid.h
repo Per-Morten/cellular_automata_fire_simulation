@@ -25,10 +25,11 @@ create_grid(const size_t rows,
             const size_t columns);
 
 cpu_cell**
-copy_grid(cpu_cell** destination,
-          cpu_cell** source,
+copy_grid(cpu_cell** CP_RESTRICT destination,
+          cpu_cell** CP_RESTRICT source,
           const size_t rows,
           const size_t columns);
+
 void
 destroy_grid(cpu_cell** cells,
              const size_t count);
