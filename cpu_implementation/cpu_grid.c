@@ -147,14 +147,9 @@ copy_grid(cpu_cell** CP_RESTRICT destination,
           const size_t rows,
           const size_t columns)
 {
-    size_t outerRows = rows + 2;
-    size_t outerColumns = columns + 2;
-
-    --source;
-    --destination;
-    for (size_t i = 0; i < outerRows; ++i)
+    for (size_t i = 0; i < rows; ++i)
     {
-        memcpy(destination[i] - 1, source[i] - 1, sizeof(cpu_cell) * outerColumns);
+        memcpy(destination[i], source[i], sizeof(cpu_cell) * columns);
     }
 
     return destination;
