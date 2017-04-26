@@ -2,6 +2,7 @@
 #include <constants.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <string.h>
 
 void
 draw(cp_sdl_api* api,
@@ -47,12 +48,28 @@ create_grid(const size_t rows,
             const size_t columns)
 {
     cpu_cell** cells;
+    /*We need a outline for the grid to remove out of bounds checking. 
+    therefore we allocate a layer of cells outside the grid with values that will not affect the simulation.
+    we went for this solution as the bounds checking is quite expensive, and not wanted on the cpu, even less on the gpu
+    */
+    size_t outerRows = rows + 2;
+    size_t outerColums = columns + 2;
 
-    cells = (cpu_cell**)malloc(rows * sizeof(cpu_cell*));
-    for (size_t i = 0; i != rows; ++i)
+    cells = (cpu_cell**)malloc(outerRows * sizeof(cpu_cell*));
+    for (size_t i = 0; i != outerRows; ++i)
     {
-        cells[i] = (cpu_cell*)malloc(columns * sizeof(cpu_cell));
+        
+        cells[i] = (cpu_cell*)malloc(outerColums * sizeof(cpu_cell));
+        memset(cells[i], 0, outerColums * sizeof(cpu_cell));
+        /*
+        increment the pointer to the first element after creation, so the outer layer will not be seen by external code
+        */
+        cells[i]++;
     }
+    /*
+    increment the pointer to the first array, so the outer layer will not be seen by external code
+    */
+    cells++;
 
     for (size_t i = 0; i != rows; ++i)
     {
@@ -87,9 +104,13 @@ void
 destroy_grid(cpu_cell** cells,
              const size_t count)
 {
+    /*
+    at this point we need to revert the pointers back to the start of their respective arrays. further explanation in create_grid.
+    */
+    cells--;
     for (size_t i = 0; i != count; ++i)
     {
-        free(cells[i]);
+        free(--cells[i]);
     }
     free(cells);
 }
