@@ -6,6 +6,7 @@
 #include <cp_common.h>
 #include <cpu_cell.h>
 #include <cpu_grid.h>
+#include <constants.h>
 
 #undef main
 
@@ -13,8 +14,7 @@ int
 main(CP_UNUSED int argc,
      CP_UNUSED char** argv)
 {
-    const int window_width = 640;
-    const int window_height = 480;
+
 
     cp_log_init();
     cp_sdl_api sdl_api;
@@ -23,19 +23,31 @@ main(CP_UNUSED int argc,
 
     if (result == CP_SUCCESS)
     {
-        size_t row_count = window_width / 10;
-        size_t column_count = window_height / 10;
+        size_t row_count = window_width / cell_width;
+        size_t column_count = window_height / cell_height;
         cpu_cell** cells = create_grid(row_count,
                                        column_count);
+        cpu_cell** cells2 = create_grid(row_count,
+                                        column_count);
 
         while (cp_sdl_handle_events())
         {
+            update_cell_temprature(cells, cells2, row_count, column_count);
+            copy_grid(cells, cells2, row_count, column_count);
+            /*swap hax*/
+            //cpu_cell** temp = cells;
+            //CP_DEBUG("Cell fuel: %p %p", cells, cells2);
+            //cells = cells2;
+            //cells2 = temp;
+            /*eo swap hax*/
+
+            update_cell_color(cells, row_count, column_count);
             draw(&sdl_api, (const cpu_cell**)cells,
                  row_count, column_count);
         }
 
         destroy_grid(cells,
-                     window_width / 10);
+                     window_width / cell_width);
 
     }
 
