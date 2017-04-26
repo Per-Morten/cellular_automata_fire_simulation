@@ -159,10 +159,8 @@ void
 destroy_grid(cpu_cell** cells,
              const size_t count)
 {
-    /*
-    at this point we need to revert the pointers back to the start of their respective arrays. further explanation in create_grid.
-    */
-    cells--;
+    // Decrement pointer to get to outer layer.
+    --cells;
     for (size_t i = 0; i != count; ++i)
     {
         free(--cells[i]);
