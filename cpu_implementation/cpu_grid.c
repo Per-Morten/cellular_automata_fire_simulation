@@ -56,30 +56,32 @@ update_cell_temperature(cpu_cell** read_cells,
             //give heat to nearby cells
             float initial_temperature = read_cells[i][j].temperature;
 
-            write_cells[i][j].temperature = initial_temperature -
-                (initial_temperature*temperature_spread_up +
-                 initial_temperature*temperature_spread_down +
-                 initial_temperature*temperature_spread_diagonal_down * 2 +
-                 initial_temperature*temperature_spread_diagonal_up * 2 +
-                 initial_temperature*temperature_spread_horizontal * 2);
+            float sum_temperature = initial_temperature -
+                (initial_temperature * temperature_spread_up +
+                 initial_temperature * temperature_spread_down +
+                 initial_temperature * temperature_spread_diagonal_down * 2 +
+                 initial_temperature * temperature_spread_diagonal_up * 2 +
+                 initial_temperature * temperature_spread_horizontal * 2);
 
             //Add temperature from nearby cells
             //add from below
-            write_cells[i][j].temperature += read_cells[i][j + 1].temperature*temperature_spread_up;
+            sum_temperature += read_cells[i][j + 1].temperature * temperature_spread_up;
             //add from above
-            write_cells[i][j].temperature += read_cells[i][j - 1].temperature*temperature_spread_down;
+            sum_temperature += read_cells[i][j - 1].temperature * temperature_spread_down;
             //add from diagonal below
-            write_cells[i][j].temperature += read_cells[i + 1][j + 1].temperature*temperature_spread_diagonal_up;
-            write_cells[i][j].temperature += read_cells[i - 1][j + 1].temperature*temperature_spread_diagonal_up;
+            sum_temperature += read_cells[i + 1][j + 1].temperature * temperature_spread_diagonal_up;
+            sum_temperature += read_cells[i - 1][j + 1].temperature * temperature_spread_diagonal_up;
             //add from horizontal
-            write_cells[i][j].temperature += read_cells[i + 1][j].temperature*temperature_spread_horizontal;
-            write_cells[i][j].temperature += read_cells[i - 1][j].temperature*temperature_spread_horizontal;
+            sum_temperature += read_cells[i + 1][j].temperature * temperature_spread_horizontal;
+            sum_temperature += read_cells[i - 1][j].temperature * temperature_spread_horizontal;
             //add from diagonal above
-            write_cells[i][j].temperature += read_cells[i + 1][j - 1].temperature*temperature_spread_diagonal_down;
-            write_cells[i][j].temperature += read_cells[i - 1][j - 1].temperature*temperature_spread_diagonal_down;
+            sum_temperature += read_cells[i + 1][j - 1].temperature * temperature_spread_diagonal_down;
+            sum_temperature += read_cells[i - 1][j - 1].temperature * temperature_spread_diagonal_down;
 
-            if (read_cells[i][j].temperature > burning_threshold
-                && read_cells[i][j].fuel > 0)
+            write_cells[i][j].temperature = sum_temperature;
+
+            if (read_cells[i][j].temperature > burning_threshold &&
+                read_cells[i][j].fuel > 0)
             {
                 write_cells[i][j].temperature += fuel_consumption_heat_increase;
                 write_cells[i][j].fuel = read_cells[i][j].fuel - 1;
