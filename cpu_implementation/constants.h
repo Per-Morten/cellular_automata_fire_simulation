@@ -1,4 +1,6 @@
 #pragma once
+#include <stdint.h>
+
 static const int window_width = 640;
 static const int window_height = 640;
 static const int cell_width = 10;
