@@ -6,6 +6,7 @@
 #include <cp_common.h>
 #include <cpu_cell.h>
 #include <cpu_grid.h>
+#include <constants.h>
 
 #undef main
 
@@ -13,8 +14,7 @@ int
 main(CP_UNUSED int argc,
      CP_UNUSED char** argv)
 {
-    const int window_width = 640;
-    const int window_height = 480;
+
 
     cp_log_init();
     cp_sdl_api sdl_api;
@@ -23,8 +23,8 @@ main(CP_UNUSED int argc,
 
     if (result == CP_SUCCESS)
     {
-        size_t row_count = window_width / 10;
-        size_t column_count = window_height / 10;
+        size_t row_count = window_width / cell_width;
+        size_t column_count = window_height / cell_height;
         cpu_cell** cells = create_grid(row_count,
                                        column_count);
 
@@ -35,7 +35,7 @@ main(CP_UNUSED int argc,
         }
 
         destroy_grid(cells,
-                     window_width / 10);
+                     window_width / cell_width);
 
     }
 

@@ -1,4 +1,5 @@
 #include <cpu_grid.h>
+#include <constants.h>
 
 void
 draw(cp_sdl_api* api,
@@ -33,12 +34,10 @@ create_grid(const size_t rows,
     {
         for (size_t j = 0; j != columns; ++j)
         {
-            const int width = 10;
-            const int height = 10;
-            cells[i][j].graphics.h = height;
-            cells[i][j].graphics.w = width;
-            cells[i][j].graphics.x = width * i;
-            cells[i][j].graphics.y = height * j;
+            cells[i][j].graphics.h = cell_height;
+            cells[i][j].graphics.w = cell_width;
+            cells[i][j].graphics.x = cell_width * i;
+            cells[i][j].graphics.y = cell_height * j;
 
             cells[i][j].graphics.border_width = 2;
 
