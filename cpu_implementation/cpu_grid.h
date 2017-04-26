@@ -24,7 +24,8 @@ create_grid(const size_t rows,
             const size_t columns);
 
 cpu_cell**
-copy_grid(cpu_cell** original_cells,
+copy_grid(cpu_cell** destination,
+          cpu_cell** source,
           const size_t rows,
           const size_t columns);
 void
