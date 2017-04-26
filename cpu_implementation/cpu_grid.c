@@ -1,9 +1,12 @@
-#include <cpu_grid.h>
-#include <constants.h>
-#include <stdlib.h>
 #include <limits.h>
+#include <stdlib.h>
 #include <string.h>
+
+#include <constants.h>
 #include <cp_common.h>
+#include <cp_common.h>
+#include <cpu_grid.h>
+#include <cpu_simulation.h>
 
 void
 draw(cp_sdl_api* api,
