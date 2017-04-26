@@ -1,12 +1,13 @@
 #include <stdio.h>
+
 #include <pthread.h>
 
-#include <cp_sdl.h>
-
+#include <constants.h>
 #include <cp_common.h>
+#include <cp_sdl.h>
 #include <cpu_cell.h>
 #include <cpu_grid.h>
-#include <constants.h>
+#include <cpu_simulation.h>
 
 #undef main
 
@@ -14,8 +15,6 @@ int
 main(CP_UNUSED int argc,
      CP_UNUSED char** argv)
 {
-
-
     cp_log_init();
     cp_sdl_api sdl_api;
     int32_t result = cp_sdl_init(&sdl_api, "cpu implementation",
@@ -23,32 +22,38 @@ main(CP_UNUSED int argc,
 
     if (result == CP_SUCCESS)
     {
-        size_t row_count = window_width / cell_width;
-        size_t column_count = window_height / cell_height;
-        cpu_cell** cells = create_grid(row_count,
-                                       column_count);
-        cpu_cell** cells2 = create_grid(row_count,
-                                        column_count);
+        size_t cell_count = window_width / cell_width;
 
-        while (cp_sdl_handle_events())
+        cpu_simulation sim_data = create_simulation(cell_count);
+        pthread_t simulation_thread;
+        pthread_create(&simulation_thread, NULL, run_simulation, &sim_data);
+        bool should_continue = true;
+
+        while (should_continue)
         {
-            update_cell_temprature(cells, cells2, row_count, column_count);
-            copy_grid(cells, cells2, row_count, column_count);
-            /*swap hax*/
-            //cpu_cell** temp = cells;
-            //CP_DEBUG("Cell fuel: %p %p", cells, cells2);
-            //cells = cells2;
-            //cells2 = temp;
-            /*eo swap hax*/
+            sem_post(sim_data.start_sync);
 
-            update_cell_color(cells, row_count, column_count);
-            draw(&sdl_api, (const cpu_cell**)cells,
-                 row_count, column_count);
+            draw(&sdl_api, (const cpu_cell**)sim_data.double_buffer->read,
+                 cell_count, cell_count);
+
+            should_continue = cp_sdl_handle_events();
+            sem_wait(sim_data.finish_sync);
+
+            copy_grid(sim_data.double_buffer->read,
+                      sim_data.double_buffer->write,
+                      sim_data.double_buffer->count,
+                      sim_data.double_buffer->count);
+
+            update_cell_color(sim_data.double_buffer->read,
+                              sim_data.double_buffer->count,
+                              sim_data.double_buffer->count);
+
+            *sim_data.should_continue = should_continue;
         }
+        sem_post(sim_data.start_sync);
 
-        destroy_grid(cells,
-                     window_width / cell_width);
-
+        pthread_join(simulation_thread, NULL);
+        destroy_simulation(&sim_data);
     }
 
     cp_sdl_shutdown(&sdl_api);
