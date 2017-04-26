@@ -3,6 +3,7 @@
 
 #include <cp_common.h>
 
+#undef main
 int
 main(CP_UNUSED int argc,
      CP_UNUSED char** argv)

@@ -9,7 +9,7 @@ add_executable(cpu_implementation
 )
 
 target_link_libraries(cpu_implementation
-       	OpenCL
-        cp_common
-        cp_sdl
+    ${CP_STANDARD_LINKS}
+    cp_common
+    cp_sdl
 )

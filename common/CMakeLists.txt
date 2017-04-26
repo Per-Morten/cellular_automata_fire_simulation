@@ -6,6 +6,5 @@ add_library(cp_common
 )
 
 target_link_libraries(cp_common
-    OpenCL
-    m # For math
+    ${CP_STANDARD_LINKS}
 )

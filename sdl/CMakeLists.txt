@@ -5,9 +5,8 @@ add_library(cp_sdl
 )
 
 target_link_libraries(cp_sdl
-    SDL2
+    ${CP_STANDARD_LINKS}
     cp_common
-    m # For math
 )
 
 # For testing
@@ -16,8 +15,7 @@ add_executable(cp_sdl_test
 )
 
 target_link_libraries(cp_sdl_test
-    SDL2
+    ${CP_STANDARD_LINKS}
     cp_common
     cp_sdl
-    m # For math
 )
