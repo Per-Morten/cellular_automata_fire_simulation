@@ -129,7 +129,7 @@ create_grid(const size_t rows,
             cells[i][j].graphics.x = cell_width * i;
             cells[i][j].graphics.y = cell_height * j;
 
-            cells[i][j].graphics.border_width = 1;
+            cells[i][j].graphics.border_width = 0;
 
             cells[i][j].graphics.border_color.r = 0x00;
             cells[i][j].graphics.border_color.g = 0xF0;
