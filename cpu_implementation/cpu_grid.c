@@ -94,30 +94,24 @@ cpu_cell**
 create_grid(const size_t rows,
             const size_t columns)
 {
-    cpu_cell** cells;
-    /*We need a outline for the grid to remove out of bounds checking.
-    therefore we allocate a layer of cells outside the grid with values that will not affect the simulation.
-    we went for this solution as the bounds checking is quite expensive, and not wanted on the cpu, even less on the gpu
-    */
-    size_t outerRows = rows + 2;
-    size_t outerColumns = columns + 2;
+    // An outline is added within the grid to avoid bounds checking,
+    // which is more efficient on cpu, and much more efficient on gpu.
+    size_t outer_rows = rows + 2;
+    size_t outer_columns = columns + 2;
 
-    cells = (cpu_cell**)malloc(outerRows * sizeof(cpu_cell*));
-    for (size_t i = 0; i != outerRows; ++i)
+    cpu_cell** cells = (cpu_cell**)malloc(outer_rows * sizeof(cpu_cell*));
+
+    for (size_t i = 0; i != outer_rows; ++i)
     {
-
-        cells[i] = (cpu_cell*)malloc(outerColumns * sizeof(cpu_cell));
-        memset(cells[i], 0, outerColumns * sizeof(cpu_cell));
-        /*
-        increment the pointer to the first element after creation, so the outer layer will not be seen by external code
-        */
-        cells[i]++;
+        cells[i] = (cpu_cell*)malloc(outer_columns * sizeof(cpu_cell));
+        // pointer is incremented to the first element, outer element is not seen by external code.
+        memset(cells[i]++, 0, outer_columns * sizeof(cpu_cell));
     }
-    /*
-    increment the pointer to the first array, so the outer layer will not be seen by external code
-    */
+
+    // pointer is incremented to the first layer, outer layer is not seen by external code.
     cells++;
 
+    // initialize all "internal" cells
     for (size_t i = 0; i != rows; ++i)
     {
         for (size_t j = 0; j != columns; ++j)
