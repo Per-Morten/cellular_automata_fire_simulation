@@ -31,6 +31,18 @@ update_cell_color(cpu_cell** cells,
                   const size_t rows,
                   const size_t columns);
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief Updates the temperature to all the cells pointed to by write_cells.
+///        The temperature is based on the values within read_cells.
+///
+/// \param read_cells  the cells to read current temperatures from.
+/// \param write_cells the cells to store the updated temperatures in.
+/// \param rows        the number of rows in read_cells and write_cells.
+/// \param columns     the number of columns in read_cesll and write_cells
+///
+/// \warning read_cells and write_cells may not alias,
+///          i.e. point to the same objects.
+///////////////////////////////////////////////////////////////////////////////
 void
 update_cell_temperature(cpu_cell** CP_RESTRICT read_cells,
                         cpu_cell** CP_RESTRICT write_cells,
