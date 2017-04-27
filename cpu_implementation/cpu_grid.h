@@ -3,6 +3,15 @@
 #include <cp_common.h>
 #include <cpu_cell.h>
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief Renders all cells pointed to by cells to the renderer within the
+///        api.
+///
+/// \param api      the cp_sdl_api holding the renderer and window.
+/// \param cells    the cells to render.
+/// \param rows     the number of rows in cells.
+/// \param columns  the number of columns in cells.
+///////////////////////////////////////////////////////////////////////////////
 void
 draw(cp_sdl_api* api,
      const cpu_cell** cells,
