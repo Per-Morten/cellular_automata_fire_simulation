@@ -85,6 +85,12 @@ copy_grid(cpu_cell** CP_RESTRICT destination,
           const size_t rows,
           const size_t columns);
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief Destroys the grid pointed to by cells, cleaning up its memory.
+///
+/// \param cells the grid to destroy.
+/// \param rows the number of rows in the grid.
+///////////////////////////////////////////////////////////////////////////////
 void
 destroy_grid(cpu_cell** cells,
              const size_t rows);
