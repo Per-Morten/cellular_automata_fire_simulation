@@ -49,6 +49,20 @@ update_cell_temperature(cpu_cell** CP_RESTRICT read_cells,
                         const size_t rows,
                         const size_t colums);
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief Creates a cpu_cell grid with the dimensions indicated by rows and
+///        columns.
+///        The grid is actually one layer larger in each dimension, with
+///        zeroed out memory, meaning that the user will not have to check
+///        for going out of bounds +-1 in either row or column direction,
+///        as long as 0 values does not affect calculations.
+///
+/// \param rows     the row dimension of the grid to create.
+/// \param columns  the column dimension of the grid to create.
+///
+/// \note  A cpu_cell grid created with create_grid must be destroyed using
+///        destroy_grid to ensure proper cleanup without leaks.
+///////////////////////////////////////////////////////////////////////////////
 cpu_cell**
 create_grid(const size_t rows,
             const size_t columns);
