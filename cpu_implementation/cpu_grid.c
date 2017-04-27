@@ -157,11 +157,11 @@ copy_grid(cpu_cell** CP_RESTRICT destination,
 
 void
 destroy_grid(cpu_cell** cells,
-             const size_t count)
+             const size_t rows)
 {
     // Decrement pointer to get to outer layer.
     --cells;
-    for (size_t i = 0; i != count; ++i)
+    for (size_t i = 0; i != rows; ++i)
     {
         free(--cells[i]);
     }
