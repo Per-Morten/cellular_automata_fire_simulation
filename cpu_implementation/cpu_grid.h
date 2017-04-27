@@ -67,6 +67,18 @@ cpu_cell**
 create_grid(const size_t rows,
             const size_t columns);
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief Copies the grid pointed to by source, into the grid pointed to
+///        by destination.
+///
+/// \param destination where to store the grid.
+/// \param source the grid to copy.
+/// \param rows the number of rows in source and destination.
+/// \param columns the number of columns in source and destination.
+///
+/// \warning destination and source may not alias,
+///          i.e. point to the same objects.
+///////////////////////////////////////////////////////////////////////////////
 cpu_cell**
 copy_grid(cpu_cell** CP_RESTRICT destination,
           cpu_cell** CP_RESTRICT source,
