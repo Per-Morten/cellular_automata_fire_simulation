@@ -18,6 +18,14 @@ draw(cp_sdl_api* api,
      const size_t rows,
      const size_t columns);
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief Updates the colors to all the cells pointed to by cells.
+///        The color is based on the temperature of the different cells.
+///
+/// \param cells    the cells whose colors is to be updated.
+/// \param rows     the number of rows in cells.
+/// \param columns  the number of columns in cells.
+///////////////////////////////////////////////////////////////////////////////
 void
 update_cell_color(cpu_cell** cells,
                   const size_t rows,
