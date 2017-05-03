@@ -4,6 +4,10 @@ project (cpu_implementation)
 set (cpu_implementation_VERSION_MAJOR 1)
 set (cpu_implementation_VERSION_MINOR 0)
 
+include_directories(cpu_implementation
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 add_executable(cpu_implementation
     constants.h
     cpu_grid.c
