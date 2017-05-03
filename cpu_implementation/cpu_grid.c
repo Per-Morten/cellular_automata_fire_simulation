@@ -1,6 +1,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include <constants.h>
 #include <cp_common.h>
@@ -112,6 +113,8 @@ create_grid(const size_t rows,
     cells++;
 
     // initialize all "internal" cells
+    srand(time(NULL));
+
     for (size_t i = 0; i != rows; ++i)
     {
         for (size_t j = 0; j != columns; ++j)
