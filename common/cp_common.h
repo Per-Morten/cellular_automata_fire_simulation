@@ -29,6 +29,24 @@
 #define CP_RESTRICT restrict
 #endif
 
+#if defined(_MSC_VER)
+#define CP_PUSH_WARNING_DEPRECATED \
+_Pragma("warning(push)")           \
+_Pragma("warning(disable:4996)")
+#else
+#define CP_PUSH_WARNING_DEPRECATED \
+_Pragma("GCC diagnostic push")     \
+_Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+#endif
+
+#if defined(_MSC_VER)
+#define CP_POP_WARNING \
+_Pragma("warning(pop)")
+#else
+#define CP_POP_WARNING \
+_Pragma("GCC diagnostic pop")
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Used to log unrecoverable errors.
 ///
