@@ -21,8 +21,6 @@ endif()
 
 include_directories("${PROJECT_BINARY_DIR}"
                     "${CMAKE_SOURCE_DIR}/common"
-                    "${CMAKE_SOURCE_DIR}/cpu_implementation"
-                    "${CMAKE_SOURCE_DIR}/opencl_implementation"
                     "${CMAKE_SOURCE_DIR}/sdl"
                     "${CP_STANDARD_INCLUDES}")
 
