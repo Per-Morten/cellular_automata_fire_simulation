@@ -57,3 +57,25 @@ cleanup_opencl(cl_context context,
 const char*
 get_error(const cl_int status);
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief Prints certain device related info of the device indicated by
+///        device_id.
+///
+/// \param device_id the id to print info of.
+///
+/// \todo Add support for: CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE
+///                        CL_DEVICE_PARENT_DEVICE
+///                        CL_DEVICE_PARTITION_PROPERTIES
+///                        CL_DEVICE_PARTITION_TYPE
+///////////////////////////////////////////////////////////////////////////////
+void
+print_device_info(const cl_device_id device_id);
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief Prints certain platform related info of the platform indicated by
+///        platform_id.
+///
+/// \param platform_id the id to print info of.
+///////////////////////////////////////////////////////////////////////////////
+void
+print_platform_info(const cl_platform_id platform_id);
