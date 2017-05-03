@@ -46,6 +46,25 @@ cleanup_opencl(cl_context context,
                cl_command_queue command_queue);
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief Creates and builds the program indicated by filepath, and stores
+///        it in out_program.
+///
+/// \param context the context to build the program in.
+/// \param device_id the device to build with
+/// \param out_program where to store the program.
+/// \param file_path the path to the program.
+/// \param arguments build arguments for the program.
+///
+/// \return CP_SUCCESS on success, CP_FAILURE on failure.
+///////////////////////////////////////////////////////////////////////////////
+int32_t
+create_program(cl_context context,
+               cl_device_id device_id,
+               cl_program* out_program,
+               const char* file_path,
+               const char* arguments);
+
+///////////////////////////////////////////////////////////////////////////////
 /// \brief Checks whether or not the status is an opencl error, in which case
 ///        it returns a string containing the error type.
 ///        returns NULL on success.

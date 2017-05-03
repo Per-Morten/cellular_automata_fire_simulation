@@ -1,4 +1,5 @@
 #include <opencl_utility.h>
+#include <stdbool.h>
 
 int32_t
 get_device_id(cl_device_type type,
@@ -81,6 +82,54 @@ CP_POP_WARNING
     return CP_SUCCESS;
 }
 
+/// Taken from:
+/// http://stackoverflow.com/questions/8236/how-do-you-determine-the-size-of-a-file-in-c
+long int
+fsize(const char* file)
+{
+    FILE* f = fopen(file, "r");
+    fseek(f, 0, SEEK_END);
+    long int len = ftell(f);
+    fclose(f);
+    return len;
+}
+
+char*
+read_kernel(const char* path)
+{
+    FILE* file = fopen(path, "r");
+    if (file == NULL)
+    {
+        return NULL;
+    }
+
+    long int size = fsize(path);
+    if (size == -1l)
+    {
+        return NULL;
+    }
+
+    char* source = calloc(size, sizeof(char));
+
+    const size_t char_read = fread(source,
+                                   sizeof(char),
+                                   size,
+                                   file);
+
+    bool invalid = (char_read < (size_t)size &&
+                    feof(file) == 0 &&
+                    ferror(file) != 0);
+
+    fclose(file);
+
+    if (invalid)
+    {
+        free(source);
+        source = NULL;
+    }
+
+    return source;
+}
 
 int32_t
 setup_opencl(cl_device_id* out_device_id,
@@ -131,6 +180,69 @@ cleanup_opencl(cl_context context,
     clReleaseCommandQueue(command_queue);
     clReleaseContext(context);
 }
+
+int32_t
+create_program(cl_context context,
+               cl_device_id device_id,
+               cl_program* out_program,
+               const char* file_path,
+               const char* arguments)
+{
+    char* source = read_kernel(file_path);
+    if (!source)
+    {
+        CP_WARN("Could not read file: %s", file_path);
+        return CP_FAILURE;
+    }
+
+    cl_int status;
+    *out_program = clCreateProgramWithSource(context, 1,
+                                             (const char**)&source,
+                                             NULL,
+                                             &status);
+    free(source);
+
+    if (status != CL_SUCCESS)
+    {
+        CP_WARN("Could not create program, error: %s",
+                get_error(status));
+        return CP_FAILURE;
+    }
+
+    status = clBuildProgram(*out_program, 1,
+                            &device_id, arguments,
+                            NULL, NULL);
+
+    if (status != CL_SUCCESS)
+    {
+        size_t length = 0;
+        char buffer[2048] = {0};
+
+        cl_int error =
+            clGetProgramBuildInfo(*out_program,
+                                  device_id,
+                                  CL_PROGRAM_BUILD_LOG,
+                                  sizeof(buffer),
+                                  buffer,
+                                  &length);
+
+        if (error != CL_SUCCESS)
+        {
+            CP_WARN("Could not get build info, error: %s",
+                    get_error(error));
+        }
+
+        CP_WARN("Could not build program, error: %s\nBuild info%s\n",
+                get_error(status),
+                buffer);
+
+        clReleaseProgram(*out_program);
+        return CP_FAILURE;
+    }
+
+    return CP_SUCCESS;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Taken from:
