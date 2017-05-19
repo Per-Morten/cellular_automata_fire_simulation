@@ -1,5 +1,6 @@
 #include <opencl_utility.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 int32_t
 get_device_id(cl_device_type type,
@@ -58,17 +59,17 @@ create_command_queue(cl_platform_id platform,
                 get_error(error));
         return CP_FAILURE;
     }
-
+   
     int32_t version[2] = {0};
     sscanf(buffer,"OpenCL %d.%d", &version[0], &version[1]);
 
+#ifdef _MSC_VER
 
-CP_PUSH_WARNING_DEPRECATED
-    *out_queue = (version[0] == 1)
-            ? clCreateCommandQueue(context, device_id, 0, &error)
-            : clCreateCommandQueueWithProperties(context, device_id,
-                                                 NULL, &error);
-CP_POP_WARNING
+    *out_queue = clCreateCommandQueue(context, device_id, 0, &error);
+
+#else
+    *out_queue = clCreateCommandQueueWithProperties(context, device_id, NULL, &error);
+#endif
 
     if (error != CL_SUCCESS)
     {
