@@ -9,6 +9,12 @@
 #include <cpu_grid.h>
 #include <cpu_simulation.h>
 
+// To prepare for exam:
+// Algorithm / Transform
+// Circular Hough Algorithm
+// Linear Hough Algorithm (?)
+// Date: 23-24 may.
+
 #undef main
 
 int
