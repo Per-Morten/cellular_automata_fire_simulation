@@ -1,7 +1,11 @@
 #include <stdio.h>
-#include <cp_sdl.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <time.h>
 
+#include <cp_sdl.h>
 #include <cp_common.h>
+#include <cp_clock.h>
 #include <opencl_utility.h>
 
 #include <constants.h>
@@ -24,7 +28,7 @@ cp_sdl_cell** create_draw_grid()
             cells[x][y].h = cell_height;
             cells[x][y].w = cell_width;
 
-            cells[x][y].border_width = 1;
+            cells[x][y].border_width = 0;
             cells[x][y].border_color.r = 0x00;
             cells[x][y].border_color.g = 0x00;
             cells[x][y].border_color.b = 0x00;
@@ -64,15 +68,41 @@ void destroy_draw_grid(cp_sdl_cell** cells)
 }
 
 void update_cell_color(cp_sdl_cell** cells,
-                       float* temprature_cells)
+                       const float* temperatures,
+                       const int32_t* fuel)
 {
-    int index = 0;
     for (size_t row = 0; row < CELLS_PER_ROW; ++row)
     {
         for (size_t col = 0; col < CELLS_PER_COL; ++col)
         {
-            index = (CELLS_PER_COL + 2)*(row + 1) + col + 1;
-            cells[row][col].color.r = (uint8_t)temprature_cells[index];
+            const size_t index = (CELLS_PER_COL + 2) * (row + 1) + col + 1;
+
+            cells[row][col].color.r = (temperatures[index] > UCHAR_MAX)
+                                    ? UCHAR_MAX
+                                    : (uint8_t)temperatures[index];
+
+            cells[row][col].color.b = (uint8_t)(fuel[index] * UCHAR_MAX / max_initial_fuel);
+        }
+    }
+}
+
+void create_temperatures(size_t count,
+                         float** out_temperature,
+                         int32_t** out_fuel)
+{
+    *out_temperature = malloc(count * sizeof(float));
+    *out_fuel = malloc(count * sizeof(int32_t));
+    memset(*out_temperature, 0, count * sizeof(float));
+    memset(*out_fuel, 0, count * sizeof(int32_t));
+
+    for (size_t row = 0; row < CELLS_PER_ROW; ++row)
+    {
+        for (size_t col = 0; col < CELLS_PER_COL; ++col)
+        {
+            int index = (CELLS_PER_COL + 2) * (row + 1) + col + 1;
+
+            (*out_temperature)[index] = rand() % (int32_t)max_initial_temperature;
+            (*out_fuel)[index] = rand() % max_initial_fuel;
         }
     }
 }
@@ -83,96 +113,154 @@ int
 main(CP_UNUSED int argc,
      CP_UNUSED char** argv)
 {
+    cp_time_point stop = cp_time_point_create();
+    cp_time_point start = cp_time_point_create();
+    cp_clock_now(start);
+
+    srand(time(NULL));
     cp_log_init();
+    cp_sdl_api sdl_api;
+    int32_t result = cp_sdl_init(&sdl_api, "opencl implementation",
+                                 window_width, window_height);
+
+    if (result != CP_SUCCESS)
+    {
+        cp_log_shutdown();
+        return -1;
+    }
+
     cl_device_id device;
     cl_context context;
     cl_command_queue queue;
-    setup_opencl(&device, &context, &queue,
-                 CL_DEVICE_TYPE_CPU,
-                 info_verbosity_platform |
-                 info_verbosity_device);
+    result = setup_opencl(&device, &context, &queue,
+                          CL_DEVICE_TYPE_CPU,
+                          info_verbosity_platform |
+                          info_verbosity_device);
 
-    char kernel_filepath[] = "kernels/offset_test.cl";
-    cl_program program;
-    int32_t result = create_program(context, device, &program,
-                                    kernel_filepath,
-                                    "-Ikernels/cp_lib/ -Werror -cl-std=CL1.2");
-
-    if (result == CP_SUCCESS)
+    if (result != CP_SUCCESS)
     {
-        cl_int error;
-        cl_kernel offset_kernel = clCreateKernel(program,
-                                                 "offset_test",
-                                                 &error);
-
-        size_t values_count = 16;
-        int32_t* h_values = calloc(values_count, sizeof(int32_t));
-        for (size_t i = 0; i < values_count; ++i)
-        {
-            h_values[i] = i;
-        }
-    cp_sdl_api sdl_api;
-    int32_t result = cp_sdl_init(&sdl_api, "cpu implementation",
-                                 window_width, window_height);
-
-    int amount_of_simulation_cells = (CELLS_PER_COL + 2)*(CELLS_PER_ROW + 2);
-
-    int* fuel_cells = malloc(amount_of_simulation_cells * sizeof(int));
-    float* temperature_cells = malloc(amount_of_simulation_cells * sizeof(float));
-    memset(fuel_cells, 0, amount_of_simulation_cells * sizeof(int));
-    memset(temperature_cells, 0, amount_of_simulation_cells * sizeof(int));
-    temperature_cells[5] = 100;
-    temperature_cells[10] = 200;
-
-    if (result == CP_SUCCESS)
-    {
-
-        cp_sdl_cell** grid = create_draw_grid();
-
-        bool should_continue = true;
-
-        while (should_continue)
-        {
-            should_continue = cp_sdl_handle_events();
-            update_cell_color(grid, temperature_cells);
-
-            cp_sdl_clear(&sdl_api);
-            draw_grid(&sdl_api, grid);
-            cp_sdl_present(&sdl_api);
-
-        }
-
-        destroy_draw_grid(grid);
-        
+        cp_log_shutdown();
+        return -1;
     }
 
-    free(fuel_cells);
-    cp_sdl_shutdown(&sdl_api);
 
-        cl_mem d_values = clCreateBuffer(context,
-                                         CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
-                                         sizeof(int32_t) * values_count,
-                                         h_values,
+    char kernel_filepath[] = "kernels/cellular_automata_fire.cl";
+    cl_program program;
+    result = create_program(context, device, &program,
+                            kernel_filepath,
+                            "-Ikernels/cp_lib/ -Werror -cl-std=CL1.2");
+
+    if (result != CP_SUCCESS)
+    {
+        cp_log_shutdown();
+        return -1;
+    }
+
+    cl_int error;
+
+    cl_kernel update_kernel = clCreateKernel(program,
+                                             "update_temperature",
+                                             &error);
+
+    if (error != CL_SUCCESS)
+    {
+        CP_WARN("Could not create update kernel, error: %s",
+                get_error(error));
+        goto cleanup;
+    }
+
+    const int32_t cell_count = (CELLS_PER_COL + 2) * (CELLS_PER_ROW + 2);
+
+    float* h_read_temperatures = NULL;
+    int32_t* h_read_fuel = NULL;
+
+    create_temperatures(cell_count,
+                        &h_read_temperatures,
+                        &h_read_fuel);
+
+    cl_mem d_read_temperatures = clCreateBuffer(context,
+                                                CL_MEM_READ_WRITE |
+                                                CL_MEM_COPY_HOST_PTR |
+                                                CL_MEM_HOST_READ_ONLY,
+                                                sizeof(float) * cell_count,
+                                                h_read_temperatures,
+                                                &error);
+
+    if (error != CL_SUCCESS)
+    {
+        CP_WARN("Could not create d_read_temperatures, error: %s",
+                get_error(error));
+        goto cleanup;
+    }
+
+
+    cl_mem d_read_fuel = clCreateBuffer(context,
+                                        CL_MEM_READ_WRITE |
+                                        CL_MEM_COPY_HOST_PTR |
+                                        CL_MEM_HOST_READ_ONLY,
+                                        sizeof(int32_t) * cell_count,
+                                        h_read_fuel,
+                                        &error);
+
+    if (error != CL_SUCCESS)
+    {
+        CP_WARN("Could not create d_read_fuel, error: %s",
+                get_error(error));
+        goto cleanup;
+    }
+
+    cl_mem d_write_temperatures = clCreateBuffer(context,
+                                                 CL_MEM_READ_WRITE |
+                                                 CL_MEM_HOST_NO_ACCESS |
+                                                 CL_MEM_COPY_HOST_PTR,
+                                                 sizeof(float) * cell_count,
+                                                 h_read_temperatures,
+                                                 &error);
+    if (error != CL_SUCCESS)
+    {
+        CP_WARN("Could not create d_write_temperature, error: %s",
+                get_error(error));
+        goto cleanup;
+    }
+
+    cl_mem d_write_fuel = clCreateBuffer(context,
+                                         CL_MEM_READ_WRITE |
+                                         CL_MEM_HOST_NO_ACCESS |
+                                         CL_MEM_COPY_HOST_PTR,
+                                         sizeof(int32_t) * cell_count,
+                                         h_read_fuel,
                                          &error);
-        if (error != CL_SUCCESS)
-        {
-            CP_WARN("Could not create buffer, error: %s",
-                    get_error(error));
-            goto cleanup;
-        }
+    if (error != CL_SUCCESS)
+    {
+        CP_WARN("Could not create d_write_fuel, error: %s",
+                get_error(error));
+        goto cleanup;
+    }
 
-        error = clSetKernelArg(offset_kernel, 0, sizeof(cl_mem), &d_values);
-        if (error != CL_SUCCESS)
-        {
-            CP_WARN("Could not set kernel argument, error: %s",
-                    get_error(error));
-            goto cleanup;
-        }
+    error  = clSetKernelArg(update_kernel, 0, sizeof(cl_mem), &d_read_temperatures);
+    error |= clSetKernelArg(update_kernel, 1, sizeof(cl_mem), &d_read_fuel);
+    error |= clSetKernelArg(update_kernel, 2, sizeof(cl_mem), &d_write_temperatures);
+    error |= clSetKernelArg(update_kernel, 3, sizeof(cl_mem), &d_write_fuel);
 
-        size_t work_dim[2] = {2, 2};
+    if (error != CL_SUCCESS)
+    {
+        CP_WARN("Could not create set kernel args, error: %s",
+                get_error(error));
+        goto cleanup;
+    }
+
+    cp_sdl_cell** grid = create_draw_grid();
+    bool should_continue = true;
+
+    while (should_continue)
+    {
+        should_continue = cp_sdl_handle_events();
+
+        size_t work_dim[2] = { CELLS_PER_ROW, CELLS_PER_COL };
         size_t offset[2] = {1, 1};
-        error = clEnqueueNDRangeKernel(queue, offset_kernel,
-                                       2, (const size_t*)&offset,
+        error = clEnqueueNDRangeKernel(queue,
+                                       update_kernel, 2,
+                                       (const size_t*)&offset,
                                        work_dim,
                                        NULL, 0, NULL, NULL);
         if (error != CL_SUCCESS)
@@ -182,33 +270,96 @@ main(CP_UNUSED int argc,
             goto cleanup;
         }
 
+        error = clEnqueueCopyBuffer(queue, d_write_temperatures, d_read_temperatures,
+                                    0, 0, cell_count * sizeof(float),
+                                    0, NULL, NULL);
+
+        if (error != CL_SUCCESS)
+        {
+            CP_WARN("Could not enqueue copy temperatures, error: %s",
+                    get_error(error));
+            goto cleanup;
+        }
+
+        error = clEnqueueCopyBuffer(queue, d_write_fuel, d_read_fuel,
+                                    0, 0, cell_count * sizeof(int32_t),
+                                    0, NULL, NULL);
+
+        if (error != CL_SUCCESS)
+        {
+            CP_WARN("Could not enqueue copy fuel, error: %s",
+                    get_error(error));
+            goto cleanup;
+        }
+
+        update_cell_color(grid, h_read_temperatures, h_read_fuel);
+        cp_sdl_clear(&sdl_api);
+        draw_grid(&sdl_api, grid);
+        cp_sdl_present(&sdl_api);
+
         error = clFinish(queue);
         if (error != CL_SUCCESS)
         {
-            CP_WARN("Could not finish, error: %s",
+            CP_WARN("Could not finish queue, error: %s",
                     get_error(error));
             goto cleanup;
         }
 
-        error = clEnqueueReadBuffer(queue, d_values, CL_TRUE, 0,
-                                    sizeof(int32_t) * values_count,
-                                    h_values, 0,
-                                    NULL, NULL);
+        error = clEnqueueReadBuffer(queue, d_read_temperatures, CL_FALSE,
+                                    0, cell_count * sizeof(float),
+                                    h_read_temperatures,
+                                    0, NULL, NULL);
         if (error != CL_SUCCESS)
         {
-            CP_WARN("Could not enqueue read, error: %s",
+            CP_WARN("Could not enqueue read temperatures, error: %s",
                     get_error(error));
             goto cleanup;
         }
 
-        cleanup:
-        clReleaseKernel(offset_kernel);
-        clReleaseMemObject(d_values);
-        free(h_values);
-        clReleaseProgram(program);
+        error = clEnqueueReadBuffer(queue, d_read_fuel, CL_FALSE,
+                                    0, cell_count * sizeof(int32_t),
+                                    h_read_fuel,
+                                    0, NULL, NULL);
+        if (error != CL_SUCCESS)
+        {
+            CP_WARN("Could not enqueue read fuel, error: %s",
+                    get_error(error));
+            goto cleanup;
+        }
+
+        error = clFinish(queue);
+        if (error != CL_SUCCESS)
+        {
+            CP_WARN("Could not finish queue, error: %s",
+                    get_error(error));
+            goto cleanup;
+        }
+
+        SDL_Delay(30);
+
     }
 
+    cp_clock_now(stop);
+
+    float delta = cp_clock_difference(stop, start, cp_time_unit_seconds);
+    CP_INFO("Time: %.5f", delta);
+
+    cleanup:
+    clReleaseKernel(update_kernel);
+
+    clReleaseMemObject(d_read_temperatures);
+    clReleaseMemObject(d_read_fuel);
+    clReleaseMemObject(d_write_temperatures);
+    clReleaseMemObject(d_write_fuel);
+
+    clReleaseProgram(program);
+
+    destroy_draw_grid(grid);
+    free(h_read_temperatures);
+    free(h_read_fuel);
+
     cleanup_opencl(context, queue);
+    cp_sdl_shutdown(&sdl_api);
     cp_log_shutdown();
     return 0;
 }
