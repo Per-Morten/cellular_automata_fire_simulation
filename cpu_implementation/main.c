@@ -8,6 +8,7 @@
 #include <cpu_cell.h>
 #include <cpu_grid.h>
 #include <cpu_simulation.h>
+#include <cp_clock.h>
 
 // To prepare for exam:
 // Algorithm / Transform
@@ -21,6 +22,10 @@ int
 main(CP_UNUSED int argc,
      CP_UNUSED char** argv)
 {
+    cp_time_point stop = cp_time_point_create();
+    cp_time_point start = cp_time_point_create();
+    cp_clock_now(start);
+
     cp_log_init();
     cp_sdl_api sdl_api;
     int32_t result = cp_sdl_init(&sdl_api, "cpu implementation",
@@ -55,11 +60,19 @@ main(CP_UNUSED int argc,
                               sim_data.double_buffer->count);
 
             *sim_data.should_continue = should_continue;
+            SDL_Delay(30);
         }
         sem_post(sim_data.start_sync);
 
         pthread_join(simulation_thread, NULL);
+
+        cp_clock_now(stop);
+
+        float delta = cp_clock_difference(stop, start, cp_time_unit_seconds);
+        CP_INFO("Time: %.5f", delta);
         destroy_simulation(&sim_data);
+
+
     }
 
     cp_sdl_shutdown(&sdl_api);
