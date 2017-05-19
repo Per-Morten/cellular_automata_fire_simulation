@@ -1,6 +1,7 @@
 #pragma once
 #include <CL/cl.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <cp_common.h>
 
 ///////////////////////////////////////////////////////////////////////////////
