@@ -51,7 +51,11 @@ cp_log(FILE* file,
                                           g_log_clock_start,
                                           cp_time_unit_milliseconds);
 
+    #if defined(_MSC_VER)
+    const char* filename = strrchr(filepath, '\\');
+    #else
     const char* filename = strrchr(filepath, '/');
+    #endif
     ++filename;
 
     fprintf(file, "[%.5f][%-5s]: %-10s: %-25s:%4d: %s\n",

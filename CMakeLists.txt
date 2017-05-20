@@ -21,8 +21,6 @@ endif()
 
 include_directories("${PROJECT_BINARY_DIR}"
                     "${CMAKE_SOURCE_DIR}/common"
-                    "${CMAKE_SOURCE_DIR}/cpu_implementation"
-                    "${CMAKE_SOURCE_DIR}/opencl_implementation"
                     "${CMAKE_SOURCE_DIR}/sdl"
                     "${CP_STANDARD_INCLUDES}")
 
@@ -30,8 +28,8 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-    set(C_FLAGS "-DCP_DEBUG_ON -Wall -Wextra -W -std=c11")
-    set(CXX_FLAG "-DCP_DEBUG_ON -Wall -Wextra -std=c++14")
+    set(C_FLAGS "-DCP_DEBUG_ON -Wall -Wextra -W -std=c11 -Ofast")
+    set(CXX_FLAG "-DCP_DEBUG_ON -Wall -Wextra -std=c++14 -Ofast")
     set(DEBUG_FLAGS "-O0 -g3")
 else()
 	set(CXX_FLAG "/DCP_DEBUG_ON /D_TIMESPEC_DEFINED")

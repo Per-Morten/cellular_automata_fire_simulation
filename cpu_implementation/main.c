@@ -1,11 +1,20 @@
 #include <stdio.h>
+
 #include <pthread.h>
 
-#include <cp_sdl.h>
-
+#include <constants.h>
 #include <cp_common.h>
+#include <cp_sdl.h>
 #include <cpu_cell.h>
 #include <cpu_grid.h>
+#include <cpu_simulation.h>
+#include <cp_clock.h>
+
+// To prepare for exam:
+// Algorithm / Transform
+// Circular Hough Algorithm
+// Linear Hough Algorithm (?)
+// Date: 23-24 may.
 
 #undef main
 
@@ -13,8 +22,9 @@ int
 main(CP_UNUSED int argc,
      CP_UNUSED char** argv)
 {
-    const int window_width = 640;
-    const int window_height = 480;
+    cp_time_point stop = cp_time_point_create();
+    cp_time_point start = cp_time_point_create();
+    cp_clock_now(start);
 
     cp_log_init();
     cp_sdl_api sdl_api;
@@ -23,19 +33,45 @@ main(CP_UNUSED int argc,
 
     if (result == CP_SUCCESS)
     {
-        size_t row_count = window_width / 10;
-        size_t column_count = window_height / 10;
-        cpu_cell** cells = create_grid(row_count,
-                                       column_count);
+        size_t cell_count = window_width / cell_width;
 
-        while (cp_sdl_handle_events())
+        cpu_simulation sim_data = create_simulation(cell_count);
+        pthread_t simulation_thread;
+        pthread_create(&simulation_thread, NULL, run_simulation, &sim_data);
+        bool should_continue = true;
+
+        while (should_continue)
         {
-            draw(&sdl_api, (const cpu_cell**)cells,
-                 row_count, column_count);
-        }
+            sem_post(sim_data.start_sync);
 
-        destroy_grid(cells,
-                     window_width / 10);
+            draw(&sdl_api, (const cpu_cell**)sim_data.double_buffer->read,
+                 cell_count, cell_count);
+
+            should_continue = cp_sdl_handle_events();
+            sem_wait(sim_data.finish_sync);
+
+            copy_grid(sim_data.double_buffer->read,
+                      sim_data.double_buffer->write,
+                      sim_data.double_buffer->count,
+                      sim_data.double_buffer->count);
+
+            update_cell_color(sim_data.double_buffer->read,
+                              sim_data.double_buffer->count,
+                              sim_data.double_buffer->count);
+
+            *sim_data.should_continue = should_continue;
+            SDL_Delay(30);
+        }
+        sem_post(sim_data.start_sync);
+
+        pthread_join(simulation_thread, NULL);
+
+        cp_clock_now(stop);
+
+        float delta = cp_clock_difference(stop, start, cp_time_unit_seconds);
+        CP_INFO("Time: %.5f", delta);
+        destroy_simulation(&sim_data);
+
 
     }
 
