@@ -29,6 +29,24 @@
 #define CP_RESTRICT restrict
 #endif
 
+#if defined(_MSC_VER)
+#define CP_PUSH_WARNING_DEPRECATED \
+_Pragma("warning(push)");           \
+_Pragma("warning(disable:4996)");
+#else
+#define CP_PUSH_WARNING_DEPRECATED \
+_Pragma("GCC diagnostic push")     \
+_Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+#endif
+
+#if defined(_MSC_VER)
+#define CP_POP_WARNING \
+_Pragma("warning(pop)");
+#else
+#define CP_POP_WARNING \
+_Pragma("GCC diagnostic pop")
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Used to log unrecoverable errors.
 ///
@@ -76,13 +94,13 @@ cp_log(stdout, "DEBUG", __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__);
 /// \brief Constant value used to indicate failure of a function to do it's
 ///        work.
 ///////////////////////////////////////////////////////////////////////////////
-#define CP_FAILURE -1
+#define CP_FAILURE 0
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Constant value used to indicate success of a function to do it's
 ///        work.
 ///////////////////////////////////////////////////////////////////////////////
-#define CP_SUCCESS 0
+#define CP_SUCCESS 1
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Function used for logging to the specified output.
