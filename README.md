@@ -4,4 +4,4 @@ This is a small cellular automata fire simulation created for the bachelors leve
 The fire simulation is implemented both on the CPU and on the GPU (using OpenCL) to measure performance differences.
 
 ### Animation
-<br>![Animation](https://github.com/Per-Morten/cellular_automata_fire_simulation/blob/Per-Morten-animation/animation.gif)
+<br>![Animation](./animation.gif)
